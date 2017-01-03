@@ -39,8 +39,6 @@ import com.facebook.react.uimanager.annotations.ReactPropGroup;
     // thread sequentially
     private static final Object[] VIEW_MGR_ARGS = new Object[2];
     private static final Object[] VIEW_MGR_GROUP_ARGS = new Object[3];
-    private static final Object[] SHADOW_ARGS = new Object[1];
-    private static final Object[] SHADOW_GROUP_ARGS = new Object[2];
 
     private PropSetter(ReactProp prop, String defaultType, Method setter) {
       mPropName = prop.name();
@@ -94,15 +92,11 @@ import com.facebook.react.uimanager.annotations.ReactPropGroup;
         ReactShadowNode nodeToUpdate,
         ReactStylesDiffMap props) {
       try {
+        Object property = extractProperty(props);
         if (mIndex == null) {
-          SHADOW_ARGS[0] = extractProperty(props);
-          mSetter.invoke(nodeToUpdate, SHADOW_ARGS);
-          Arrays.fill(SHADOW_ARGS, null);
+          mSetter.invoke(nodeToUpdate, property);
         } else {
-          SHADOW_GROUP_ARGS[0] = mIndex;
-          SHADOW_GROUP_ARGS[1] = extractProperty(props);
-          mSetter.invoke(nodeToUpdate, SHADOW_GROUP_ARGS);
-          Arrays.fill(SHADOW_GROUP_ARGS, null);
+          mSetter.invoke(nodeToUpdate, mIndex, property);
         }
       } catch (Throwable t) {
         FLog.e(ViewManager.class, "Error while updating prop " + mPropName, t);
